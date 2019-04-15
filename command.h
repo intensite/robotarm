@@ -1,7 +1,7 @@
+#include <Arduino.h>
+
 #ifndef COMMAND_H_
 #define COMMAND_H_
-
-#include <Arduino.h>
 
 struct Cmd {
   char id;
@@ -30,6 +30,8 @@ void printErr();
 void printFault();
 void printComment(char* c);
 void printComment(String& s);
+void printStatus(String& s);
+void printStatus(char* c);
 void printOk();
 
 #endif

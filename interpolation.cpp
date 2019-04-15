@@ -115,6 +115,7 @@ void Interpolation::updateActualPosition() {
   yPosmm = yStartmm + progress * yDelta;
   zPosmm = zStartmm + progress * zDelta;
   ePosmm = eStartmm + progress * eDelta;
+
 }
 
 bool Interpolation::isFinished() const {

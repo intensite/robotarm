@@ -8,7 +8,6 @@ Command::Command() {
   command.valueF = 0;
   command.valueE = 0;
   command.valueT = 0;  
-
   message = "";
 }
 
@@ -126,4 +125,13 @@ void printComment(String& s) {
 
 void printOk() {
   Serial.println("ok"); 
+}
+
+void printStatus(String& s) {
+  Serial.print("ok ");
+  Serial.println(s);
+}
+void printStatus(char* c) {
+  Serial.print("ok ");
+  Serial.println(c);
 }
