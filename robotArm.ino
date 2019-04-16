@@ -52,7 +52,7 @@ int On_Dwell = MaxDwell; // Main stepper ON-delay= 120minimum ; normal=480; Home
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   isRelativeCoord = false;  // Default to absolute coordonates
 
   //various pins..
