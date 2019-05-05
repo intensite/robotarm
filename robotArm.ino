@@ -45,7 +45,7 @@ long time;
 // for Homing
 const int Z_HomeStep = 2850;        // 2850 step to Home Rotation Stepper... rotate back CW after touching Z-min switch (to set Robotic arm rotation to 0 Degree)
 bool home_on_boot = false;          // set it false if you not want to Home the robotic arm automatically during Boot.
-bool home_rotation_stepper = false; // enable it (set to true) if you want to home rotation stepper too... it requires end-switch mounted on rotation and attached to Z-min pin on RAMPS
+bool home_rotation_stepper = true; // enable it (set to true) if you want to home rotation stepper too... it requires end-switch mounted on rotation and attached to Z-min pin on RAMPS
 const int MaxDwell = 1200;
 const int OffDwell = 80; // Main stepper OFF-delay= 40minimum ; normal=80 ; base rotation needed more time
 int On_Dwell = MaxDwell; // Main stepper ON-delay= 120minimum ; normal=480; Home speed=600
@@ -104,10 +104,12 @@ void setup()
 
   pinMode(Y_MIN_PIN, INPUT_PULLUP);
   pinMode(X_MIN_PIN, INPUT_PULLUP);
+  pinMode(Z_MIN_PIN, INPUT_PULLUP);
 
   // //testcode for EndStops
   DEBUG_PRINT("// Y limit switch status: " + String(digitalRead(Y_MIN_PIN)));
   DEBUG_PRINT("// X limit switch status: " + String(digitalRead(X_MIN_PIN)));
+  DEBUG_PRINT("// Z limit switch status: " + String(digitalRead(Z_MIN_PIN)));  // My Zlimit switch is a NC as opposed to the X&Y
 }
 
 void setStepperEnable(bool enable)
@@ -202,6 +204,7 @@ void cmdDwell(Cmd(&cmd))
 }
 void cmdGripperOn(Cmd(&cmd))
 {
+  digitalWrite(HEATER_1_PIN, HIGH);
   Direction = true;
   for (int i = 1; i <= steps_to_grip; i++)
   {
@@ -213,10 +216,13 @@ void cmdGripperOn(Cmd(&cmd))
   digitalWrite(STEPPER_GRIPPER_PIN_1, LOW);
   digitalWrite(STEPPER_GRIPPER_PIN_2, LOW);
   digitalWrite(STEPPER_GRIPPER_PIN_3, LOW);
+
+  digitalWrite(HEATER_1_PIN, LOW);
 }
 
 void cmdGripperOff(Cmd(&cmd))
 {
+  digitalWrite(HEATER_1_PIN, HIGH);
   Direction = false;
   for (int i = 1; i <= steps_to_grip; i++)
   {
@@ -228,6 +234,7 @@ void cmdGripperOff(Cmd(&cmd))
   digitalWrite(STEPPER_GRIPPER_PIN_1, LOW);
   digitalWrite(STEPPER_GRIPPER_PIN_2, LOW);
   digitalWrite(STEPPER_GRIPPER_PIN_3, LOW);
+  digitalWrite(HEATER_1_PIN, LOW);
 }
 void cmdStepperOn()
 {
@@ -481,10 +488,10 @@ void GoHome()
     // Rotation Home (It will Home towards Right Side (see from Front) towards 90 degree, hit the limit switch and then again move back to 0 Degree)
     stepperRotate.enable(true);
     pinMode(Z_MIN_PIN, INPUT_PULLUP);
-    digitalWrite(Z_DIR_PIN, LOW);
+    digitalWrite(Z_DIR_PIN, HIGH);
     delayMicroseconds(5);            // Enables the motor-Z to rotate the ARM Anti-Clock-Wise (see from Front) until hitted the Z-min_SW
     bState = digitalRead(Z_MIN_PIN); // read the input pin:
-    while (bState == HIGH)           // assume initally SW OPEN = High  (Loop until limit switch is pressed)
+    while (bState == LOW)           // Change to HIGH if the switch is initally SW OPEN = High  (Loop until limit switch is pressed)
     {
       digitalWrite(Z_STEP_PIN, HIGH);
       delayMicroseconds(On_Dwell);
@@ -492,6 +499,9 @@ void GoHome()
       delayMicroseconds(OffDwell);
       bState = digitalRead(Z_MIN_PIN);
     }
+
+    // Rotate back after touching Z-min switch (to set Robotic arm rotation to 0 Degree)
+    ZRot(LOW, Z_HomeStep);
   }
 
   cmdStepperOn(); // M17 Gcode (Power on All Steppers)
