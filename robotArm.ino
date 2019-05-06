@@ -525,7 +525,7 @@ void cmdGetPosition()
 
   //C: X:0.00 Y:0.00 Z:0.00 E:0.00
   Point pos = interpolator.getPosmm();
-  Serial.print("c X:");
+  Serial.print("C: X:");
   Serial.print(pos.xmm);
   Serial.print(" Y:");
   Serial.print(pos.ymm);
